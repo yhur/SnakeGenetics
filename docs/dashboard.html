@@ -258,13 +258,13 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4p
 <h3>Neural Network</h3>
 <div class="table-wrap"><table>
 <tr><th>Setting</th><th>Meaning</th></tr>
+<tr><td>Inputs</td><td><b>Vision</b>: the rays below, 32 inputs. <b>Simple</b>: 14 yes/no facts about the cells next to the head and where the apple is (<a href="#network">see Network</a>).</td></tr>
+<tr><td>Snake vision</td><td>Vision only: <b>8 directions</b> (with diagonals) or <b>4</b> (straight only).</td></tr>
+<tr><td>Apple/Self vision</td><td>Vision only: <b>Binary</b>: 1 if seen on the ray. <b>1 / distance</b>: closer means bigger.</td></tr>
 <tr><td>Hidden layers</td><td>How many columns of hidden neurons, from 0 to 6. A row appears for each layer's size.</td></tr>
 <tr><td>Neurons in layer <i>n</i></td><td>How many neurons that hidden layer has.</td></tr>
 <tr><td>Hidden activation</td><td>What a hidden neuron does with its total input. <b>ReLU</b>: negative → 0, positive passes through. <b>Leaky ReLU</b>: like ReLU, but negatives are scaled down instead of cut. <b>Tanh</b>: squashed to −1…1. <b>Sigmoid</b>: squashed to 0…1.</td></tr>
 <tr><td>Output activation</td><td><b>Sigmoid</b> (0…1 each), <b>Softmax</b> (the three add up to 1), or <b>Linear</b> (unchanged). Only the largest matters for the move.</td></tr>
-<tr><td>Inputs</td><td><b>Vision</b>: the rays below, 32 inputs. <b>Simple</b>: 14 yes/no facts about the cells next to the head and where the apple is (<a href="#network">see Network</a>).</td></tr>
-<tr><td>Snake vision</td><td>Vision only: <b>8 directions</b> (with diagonals) or <b>4</b> (straight only).</td></tr>
-<tr><td>Apple/Self vision</td><td>Vision only: <b>Binary</b>: 1 if seen on the ray. <b>1 / distance</b>: closer means bigger.</td></tr>
 <tr><td>Architecture</td><td>The resulting layer sizes and number of genes, for information.</td></tr>
 </table></div>
 

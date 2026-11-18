@@ -7,8 +7,46 @@ from GeneticAI.config import Config
 from GeneticAI.network import genome_size
 
 
+# The mouse wheel changes a field only after you click it. Otherwise, scrolling the panel
+# while the pointer happens to pass over a field would change its value by accident.
+class SpinBox(QSpinBox):
+    def __init__(self):
+        super().__init__()
+        self.setFocusPolicy(Qt.StrongFocus)      # the wheel alone does not select the field
+
+    def wheelEvent(self, event):
+        if self.hasFocus():
+            super().wheelEvent(event)
+        else:
+            event.ignore()                       # pass it on: the panel scrolls
+
+
+class DoubleSpinBox(QDoubleSpinBox):
+    def __init__(self):
+        super().__init__()
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, event):
+        if self.hasFocus():
+            super().wheelEvent(event)
+        else:
+            event.ignore()
+
+
+class ComboBox(QComboBox):
+    def __init__(self):
+        super().__init__()
+        self.setFocusPolicy(Qt.StrongFocus)
+
+    def wheelEvent(self, event):
+        if self.hasFocus():
+            super().wheelEvent(event)
+        else:
+            event.ignore()
+
+
 def _spin(lo, hi, val, step=1):
-    s = QSpinBox()
+    s = SpinBox()
     s.setRange(lo, hi)
     s.setSingleStep(step)
     s.setValue(val)
@@ -16,7 +54,7 @@ def _spin(lo, hi, val, step=1):
 
 
 def _dspin(lo, hi, val, step, decimals=3):
-    s = QDoubleSpinBox()
+    s = DoubleSpinBox()
     s.setRange(lo, hi)
     s.setDecimals(decimals)
     s.setSingleStep(step)
@@ -25,7 +63,7 @@ def _dspin(lo, hi, val, step, decimals=3):
 
 
 def _combo(items, val):
-    c = QComboBox()
+    c = ComboBox()
     for label, data in items:
         c.addItem(label, data)
     c.setCurrentIndex(max(0, c.findData(val)))
@@ -46,6 +84,12 @@ class ConfigPanel(QScrollArea):
         # ---------------- Network ----------------
         nn = QGroupBox('Neural Network')
         fn = QFormLayout(nn)
+        self.input_type = _combo([('Vision', 'vision'), ('Simple (14 facts)', 'simple')], cfg.input_type)
+        self.vision = _combo([('8 directions', 8), ('4 directions', 4)], cfg.vision_directions)
+        self.as_vision = _combo([('Binary', 'binary'), ('1 / distance', 'distance')], cfg.apple_self_vision)
+        fn.addRow('Inputs', self.input_type)
+        fn.addRow('Snake vision', self.vision)
+        fn.addRow('Apple/Self vision', self.as_vision)
         self.n_layers = _spin(0, 6, len(cfg.hidden_layers))
         self.n_layers.valueChanged.connect(self._rebuild_layer_spins)
         fn.addRow('Hidden layers', self.n_layers)
@@ -58,14 +102,8 @@ class ConfigPanel(QScrollArea):
                                   ('Sigmoid', 'sigmoid')], cfg.hidden_activation)
         self.output_act = _combo([('Sigmoid', 'sigmoid'), ('Softmax', 'softmax'), ('Linear', 'linear')],
                                  cfg.output_activation)
-        self.input_type = _combo([('Vision', 'vision'), ('Simple (14 facts)', 'simple')], cfg.input_type)
-        self.vision = _combo([('8 directions', 8), ('4 directions', 4)], cfg.vision_directions)
-        self.as_vision = _combo([('Binary', 'binary'), ('1 / distance', 'distance')], cfg.apple_self_vision)
         fn.addRow('Hidden activation', self.hidden_act)
         fn.addRow('Output activation', self.output_act)
-        fn.addRow('Inputs', self.input_type)
-        fn.addRow('Snake vision', self.vision)
-        fn.addRow('Apple/Self vision', self.as_vision)
         self.arch_label = QLabel()
         fn.addRow('Architecture', self.arch_label)
         v.addWidget(nn)
