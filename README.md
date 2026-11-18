@@ -47,7 +47,7 @@ are the next generation. Repeat, and the snakes get better.
 | **Game** (middle) | the original `GameBoard`, with vision rays: grey to the wall, orange = sees its own body, green = sees the apple |
 | **Training** (below the game) | generation, which snake is playing (`37 / 500`), best and average scores, and details of the snake on screen: score, steps, how it was born, age, its outputs and next move |
 | **Chart** | best and average score per generation |
-| **Settings** (right) | brain shape, population and selection, crossover, mutation, game. **Apply** uses them |
+| **Settings** (right) | inputs and brain shape, population and selection, crossover, mutation, game. **Apply** uses them. The mouse wheel changes a setting only after you click it |
 
 ## Settings, checkpoints and the two modes
 * **Apply** saves the settings to `settings.json`; both modes start from it, so `--headless`
