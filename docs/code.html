@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SnakeGenetics Source Tree</title>
+<style>
+:root {
+  --bg: #fbfaf7; --surface: #ffffff; --ink: #1d1d1b; --muted: #5f5d57; --line: #e3e0d8;
+  --accent: #2463c7; --accent-soft: #e8effb; --code-bg: #f3f1ec;
+  --t-entry: #7a4fd0; --t-run: #2463c7; --t-core: #12855a; --t-view: #c0700a; --t-game: #8a6d3b; --t-data: #7d7a72;
+  --note-bg: #fff6dc; --note-line: #e9c95a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #17181b; --surface: #1f2125; --ink: #ecebe6; --muted: #a3a19a; --line: #34363c;
+    --accent: #7aa7ff; --accent-soft: #1f2a3d; --code-bg: #26282d;
+    --t-entry: #b49aff; --t-run: #7aa7ff; --t-core: #4fd29a; --t-view: #ffb340; --t-game: #d6b47a; --t-data: #a3a19a;
+    --note-bg: #2d2817; --note-line: #7a6626;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #17181b; --surface: #1f2125; --ink: #ecebe6; --muted: #a3a19a; --line: #34363c;
+  --accent: #7aa7ff; --accent-soft: #1f2a3d; --code-bg: #26282d;
+  --t-entry: #b49aff; --t-run: #7aa7ff; --t-core: #4fd29a; --t-view: #ffb340; --t-game: #d6b47a; --t-data: #a3a19a;
+  --note-bg: #2d2817; --note-line: #7a6626;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+main { max-width: 940px; margin: 0 auto; padding: 32px 16px 96px; }
+h1 { font-size: 2rem; line-height: 1.2; margin: 0 0 6px; }
+h2 { font-size: 1.45rem; margin: 60px 0 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+h2 .num { color: var(--muted); font-weight: 500; margin-right: 6px; }
+h3 { font-size: 1.15rem; margin: 40px 0 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; scroll-margin-top: 12px; }
+h3 .lines { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-weight: 400; font-size: 0.85rem; color: var(--muted); margin-left: 8px; }
+h4 { margin: 18px 0 6px; font-size: 1rem; }
+p, li { max-width: 74ch; }
+.lead { color: var(--muted); font-size: 1.08rem; margin: 0 0 24px; }
+a { color: var(--accent); }
+code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88em; }
+code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; }
+pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; line-height: 1.5; margin: 6px 0 16px; }
+pre code { background: none; padding: 0; }
+pre .c { color: var(--muted); }
+pre .ln { color: var(--muted); user-select: none; }
+.file { display: block; font-family: ui-monospace, Menlo, monospace; font-size: 0.8rem; color: var(--muted); margin-top: 12px; }
+.meta { font-size: 0.9rem; color: var(--muted); margin: 0 0 8px; }
+.meta b { color: var(--ink); font-weight: 600; }
+table { border-collapse: collapse; width: 100%; margin: 8px 0 16px; font-size: 0.93rem; }
+th, td { text-align: left; vertical-align: top; padding: 6px 10px; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 600; font-size: 0.84rem; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+td:first-child code { white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+.note { background: var(--note-bg); border-left: 4px solid var(--note-line); padding: 10px 14px; border-radius: 6px; margin: 14px 0; }
+.note p { margin: 4px 0; }
+nav.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 18px; margin: 18px 0 8px; }
+nav.toc ol { margin: 6px 0 0; padding-left: 22px; }
+nav.toc li { margin: 2px 0; }
+pre.tree { background: var(--surface); border: 1px solid var(--line); font-size: 0.86rem; line-height: 1.6; }
+pre.tree a { text-decoration: none; font-weight: 600; }
+pre.tree a:hover { text-decoration: underline; }
+.t-entry { color: var(--t-entry); } .t-run { color: var(--t-run); } .t-core { color: var(--t-core); }
+.t-view { color: var(--t-view); } .t-game { color: var(--t-game); } .t-data { color: var(--t-data); }
+pre.tree .d { color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 0.88rem; margin: 4px 0 10px; }
+.legend span::before { content: "■ "; }
+figure { margin: 18px 0; }
+figure svg { width: 100%; height: auto; display: block; }
+figcaption { color: var(--muted); font-size: 0.9rem; margin-top: 6px; }
+svg text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; fill: var(--ink); font-size: 13px; }
+svg .mono { font-family: ui-monospace, Menlo, monospace; font-weight: 600; }
+svg .small { font-size: 11.5px; fill: var(--muted); }
+svg .box { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+svg .s-entry { stroke: var(--t-entry); } svg .s-run { stroke: var(--t-run); } svg .s-core { stroke: var(--t-core); }
+svg .s-view { stroke: var(--t-view); } svg .s-game { stroke: var(--t-game); } svg .s-data { stroke: var(--t-data); }
+svg .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
+svg .ahead { fill: var(--muted); }
+ol.trace li { margin: 4px 0; }
+ol.trace code { font-size: 0.84em; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>SnakeGenetics: the source tree</h1>
+<p class="lead">What every file is for, which files talk to each other, and where to find each piece of the program.
+Code is named by file and function or class, so you can find it with a search even after the code changes.</p>
+
+<nav class="toc">
+<b>Contents</b>
+<ol>
+  <li><a href="#tree">The tree at a glance</a></li>
+  <li><a href="#imports">Who imports whom</a></li>
+  <li><a href="#trace">Follow a run through the files</a></li>
+  <li><a href="#files">File by file</a>:
+    <a href="#f-main">main.py</a> ·
+    <a href="#d-geneticai">GeneticAI/</a> ·
+    <a href="#d-dashboard">Dashboard/</a> ·
+    <a href="#d-snakegame">SnakeGame/</a> ·
+    <a href="#d-data">files the program writes</a></li>
+  <li><a href="#where">Where to change what</a></li>
+  <li><a href="#notes">Things worth knowing</a></li>
+  <li><a href="#order">Suggested reading order</a></li>
+</ol>
+</nav>
+
+<!-- ================================================================== -->
+<h2 id="tree"><span class="num">1</span>The tree at a glance</h2>
+
+<p>Click a file name to jump to its section. The colour tells you what kind of file it is:</p>
+<div class="legend">
+  <span class="t-entry">entry point</span>
+  <span class="t-run">runner (drives the training loop)</span>
+  <span class="t-core">core logic (no drawing)</span>
+  <span class="t-view">drawing only</span>
+  <span class="t-game">original game, unchanged</span>
+  <span class="t-data">data / docs</span>
+</div>
+
+<pre class="tree">SnakeGenetics/
+├── <a class="t-entry" href="#f-main">main.py</a>                 <span class="d">start here: command line → dashboard or headless</span>
+│
+├── <a class="t-core" href="#d-geneticai">GeneticAI/</a>              <span class="d">the learning. Everything here works without a window.</span>
+│   ├── <a class="t-core" href="#f-config">config.py</a>           <span class="d">every setting in one Config dataclass; works out the brain's layer sizes</span>
+│   ├── <a class="t-core" href="#f-network">network.py</a>          <span class="d">the brain: genome → weight matrices → forward()</span>
+│   ├── <a class="t-core" href="#f-snake_ai">snake_ai.py</a>         <span class="d">one snake plays one game: look → think → move, then fitness</span>
+│   ├── <a class="t-core" href="#f-genetic">genetic.py</a>          <span class="d">the population and one generation step: select, crossover, mutate</span>
+│   ├── <a class="t-run" href="#f-headless">headless.py</a>         <span class="d">runner 1: plays whole generations in parallel, no window</span>
+│   └── <a class="t-core" href="#f-checkpoint">checkpoint.py</a>       <span class="d">saves and loads a population (.npz)</span>
+│
+├── <a class="t-view" href="#d-dashboard">Dashboard/</a>              <span class="d">the PyQt5 window</span>
+│   ├── <a class="t-run" href="#f-main_window">main_window.py</a>      <span class="d">runner 2: the window, and the training loop driven by a timer</span>
+│   ├── <a class="t-view" href="#f-board_view">board_view.py</a>       <span class="d">the game board, with vision rays drawn on top</span>
+│   ├── <a class="t-view" href="#f-nn_view">nn_view.py</a>          <span class="d">the brain: wires and neurons</span>
+│   ├── <a class="t-view" href="#f-chart_view">chart_view.py</a>       <span class="d">best and average score per generation</span>
+│   └── <a class="t-view" href="#f-config_panel">config_panel.py</a>     <span class="d">the settings form; Apply sends out a new Config</span>
+│
+├── <a class="t-game" href="#d-snakegame">SnakeGame/</a>              <span class="d">git submodule: the original game, never modified</span>
+│   ├── <a class="t-game" href="#f-snake">snake.py</a>            <span class="d">Snake, Direction, Point, and moveTo()</span>
+│   ├── <a class="t-game" href="#f-boards">boards.py</a>           <span class="d">Board (apple placement) and GameBoard (the Qt widget that draws it)</span>
+│   └── <a class="t-game" href="#f-mygame">mygame.py</a>           <span class="d">play the game yourself with the keyboard (not used here)</span>
+│
+├── <a class="t-data" href="#d-data">docs/</a>                   <span class="d">dashboard.html (the window explained), code.html (this page)</span>
+├── <a class="t-data" href="#d-data">settings.json</a>           <span class="d">written when you press Apply; both modes start from it  (git-ignored)</span>
+├── <a class="t-data" href="#d-data">saves/</a>                  <span class="d">checkpoints: *_vision.npz, *_simple.npz                  (git-ignored)</span>
+└── requirements.txt        <span class="d">PyQt5, numpy, click</span></pre>
+
+<p>Three ideas explain most of this layout:</p>
+<ul>
+  <li><b><code>GeneticAI/</code> knows nothing about windows.</b> The dashboard imports it, never the other way round.
+      That is why the same learning code runs with a window (<code>Dashboard/</code>) and without one (<code>headless.py</code>).</li>
+  <li><b><code>genetic.py</code> and <code>snake_ai.py</code> never import each other.</b> The GA only handles lists of
+      numbers (genomes) and their fitness. The game only takes a genome and returns a fitness. A <em>runner</em>
+      (<code>headless.py</code> or <code>main_window.py</code>) carries the numbers between them. See the picture below.</li>
+  <li><b><code>SnakeGame/</code> is used as is.</b> It is a separate repository, added as a submodule. <code>snake_ai.py</code>
+      wraps it instead of changing it.</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 900 190" role="img" aria-label="genetic.py and snake_ai.py are connected only through a runner">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+  <rect class="box s-core" x="20" y="40" width="200" height="100" rx="10"/>
+  <text class="mono" x="120" y="68" text-anchor="middle">genetic.py</text>
+  <text x="120" y="92" text-anchor="middle">population: 500 genomes</text>
+  <text class="small" x="120" y="114" text-anchor="middle">next_generation()</text>
+
+  <rect class="box s-run" x="350" y="40" width="200" height="100" rx="10"/>
+  <text class="mono" x="450" y="68" text-anchor="middle">runner</text>
+  <text x="450" y="92" text-anchor="middle">headless.train()</text>
+  <text x="450" y="112" text-anchor="middle">or Dashboard</text>
+
+  <rect class="box s-core" x="680" y="40" width="200" height="100" rx="10"/>
+  <text class="mono" x="780" y="68" text-anchor="middle">snake_ai.py</text>
+  <text x="780" y="92" text-anchor="middle">SnakeAI(cfg, genome)</text>
+  <text class="small" x="780" y="114" text-anchor="middle">plays one game</text>
+
+  <path class="arrow" d="M220,70 L348,70" marker-end="url(#ah)"/>
+  <text class="small" x="285" y="60" text-anchor="middle">genome</text>
+  <path class="arrow" d="M550,70 L678,70" marker-end="url(#ah)"/>
+  <text class="small" x="615" y="60" text-anchor="middle">genome</text>
+  <path class="arrow" d="M680,112 L552,112" marker-end="url(#ah)"/>
+  <text class="small" x="615" y="132" text-anchor="middle">fitness, score, steps</text>
+  <path class="arrow" d="M350,112 L222,112" marker-end="url(#ah)"/>
+  <text class="small" x="285" y="132" text-anchor="middle">ind.fitness = …</text>
+  <text class="small" x="450" y="175" text-anchor="middle">repeat for all 500 snakes, then call ga.next_generation()</text>
+</svg>
+<figcaption>The GA and the game meet only inside a runner. To understand either one you never need to read the other.</figcaption>
+</figure>
+
+<!-- ================================================================== -->
+<h2 id="imports"><span class="num">2</span>Who imports whom</h2>
+
+<figure>
+<svg viewBox="0 0 900 440" role="img" aria-label="Import graph of the project">
+  <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="ahead" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+
+
+  <!-- boxes -->
+  <rect class="box s-entry" x="360" y="16" width="180" height="40" rx="8"/>
+  <text class="mono" x="450" y="41" text-anchor="middle">main.py</text>
+
+  <rect class="box s-run" x="30" y="110" width="240" height="48" rx="8"/>
+  <text class="mono" x="150" y="139" text-anchor="middle">Dashboard/main_window.py</text>
+  <rect class="box s-run" x="330" y="110" width="240" height="48" rx="8"/>
+  <text class="mono" x="450" y="139" text-anchor="middle">GeneticAI/headless.py</text>
+  <rect class="box s-core" x="630" y="110" width="200" height="48" rx="8"/>
+  <text class="mono" x="730" y="139" text-anchor="middle">checkpoint.py</text>
+
+  <rect class="box s-view" x="30" y="220" width="240" height="60" rx="8"/>
+  <text class="mono" x="150" y="244" text-anchor="middle">board_view · nn_view</text>
+  <text class="mono" x="150" y="266" text-anchor="middle">chart_view · config_panel</text>
+  <rect class="box s-core" x="330" y="220" width="240" height="60" rx="8"/>
+  <text class="mono" x="450" y="246" text-anchor="middle">snake_ai.py</text>
+  <text class="small" x="450" y="266" text-anchor="middle">SnakeAI, play_game</text>
+  <rect class="box s-core" x="630" y="220" width="200" height="60" rx="8"/>
+  <text class="mono" x="730" y="246" text-anchor="middle">genetic.py</text>
+  <text class="small" x="730" y="266" text-anchor="middle">GeneticAlgorithm</text>
+
+  <rect class="box s-game" x="30" y="340" width="240" height="56" rx="8"/>
+  <text class="mono" x="150" y="364" text-anchor="middle">SnakeGame/</text>
+  <text class="small" x="150" y="384" text-anchor="middle">snake.py · boards.py</text>
+  <rect class="box s-core" x="430" y="340" width="170" height="56" rx="8"/>
+  <text class="mono" x="515" y="373" text-anchor="middle">network.py</text>
+  <rect class="box s-core" x="660" y="340" width="170" height="56" rx="8"/>
+  <text class="mono" x="745" y="373" text-anchor="middle">config.py</text>
+
+  <!-- arrows: "A imports B" -->
+  <path class="arrow" d="M410,56 L190,108" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M450,56 L450,108" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M490,56 L700,108" marker-end="url(#ah2)"/>
+
+  <path class="arrow" d="M150,158 L150,218" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M240,158 L380,218" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M450,158 L450,218" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M570,134 L628,134" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M730,158 L730,218" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M830,140 C 870,200 860,300 790,338" marker-end="url(#ah2)"/>
+
+  <path class="arrow" d="M150,280 L150,338" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M400,280 L230,338" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M480,280 L505,338" marker-end="url(#ah2)"/>
+  <path class="arrow" d="M680,280 L565,338" marker-end="url(#ah2)"/>
+
+  <text class="small" x="30" y="428">arrow = "imports". Arrows point down or sideways, never up: a file only uses files below it.</text>
+</svg>
+<figcaption>The main imports. Left out to keep the picture readable: <code>main.py</code> also imports <code>config</code> and <code>genetic</code>;
+<code>main_window.py</code> also imports <code>genetic</code>, <code>checkpoint</code> and <code>config</code>; <code>config_panel.py</code> imports <code>config</code> and <code>network</code>.
+The full list is in the table.</figcaption>
+</figure>
+
+<div class="table-wrap">
+<table>
+<tr><th>File</th><th>Imports from this project</th><th>Is imported by</th></tr>
+<tr><td><code>main.py</code></td><td>config, genetic, checkpoint; later headless <em>or</em> Dashboard.main_window</td><td>nothing: you run it</td></tr>
+<tr><td><code>GeneticAI/config.py</code></td><td>nothing</td><td>main, checkpoint, main_window, config_panel</td></tr>
+<tr><td><code>GeneticAI/network.py</code></td><td>nothing (numpy only)</td><td>genetic, snake_ai, config_panel</td></tr>
+<tr><td><code>GeneticAI/snake_ai.py</code></td><td>network; <code>snake</code> and <code>boards</code> from SnakeGame/</td><td>headless, main_window, board_view</td></tr>
+<tr><td><code>GeneticAI/genetic.py</code></td><td>network</td><td>main, checkpoint, main_window</td></tr>
+<tr><td><code>GeneticAI/headless.py</code></td><td>checkpoint, snake_ai</td><td>main (only with <code>--headless</code>)</td></tr>
+<tr><td><code>GeneticAI/checkpoint.py</code></td><td>config, genetic</td><td>main, headless, main_window</td></tr>
+<tr><td><code>Dashboard/main_window.py</code></td><td>genetic, config, snake_ai, checkpoint, and the four views</td><td>main (without <code>--headless</code>)</td></tr>
+<tr><td><code>Dashboard/board_view.py</code></td><td>snake_ai (only to set up the path), <code>boards.GameBoard</code></td><td>main_window</td></tr>
+<tr><td><code>Dashboard/nn_view.py</code>, <code>chart_view.py</code></td><td>nothing (PyQt5 only)</td><td>main_window</td></tr>
+<tr><td><code>Dashboard/config_panel.py</code></td><td>config, network</td><td>main_window</td></tr>
+<tr><td><code>SnakeGame/snake.py</code>, <code>boards.py</code></td><td>nothing</td><td>snake_ai, board_view</td></tr>
+</table>
+</div>
+
+<div class="note">
+<p><b>How <code>SnakeGame/</code> gets imported.</b> It is not a Python package, so <code>snake_ai.py</code> adds the folder to
+<code>sys.path</code> first and then does <code>from snake import …</code> and <code>from boards import …</code>.
+<code>board_view.py</code> imports <code>GeneticAI.snake_ai</code> first only so that this path is set up before it
+imports <code>boards</code>.</p>
+</div>
+
+<!-- ================================================================== -->
+<h2 id="trace"><span class="num">3</span>Follow a run through the files</h2>
+
+<p>The same story, told as the path the program takes through the tree. Steps 1–2 are shared; then the two modes split.</p>
+
+<h4>Start-up (both modes)</h4>
+<ol class="trace">
+  <li><code>main.py</code> <code>main()</code> → <code>Config.load_last()</code> in <code>config.py</code> reads <code>settings.json</code>, or uses the defaults.</li>
+  <li><code>GeneticAlgorithm(settings)</code> in <code>genetic.py</code> creates 500 random genomes with
+      <code>random_genome()</code> from <code>network.py</code>. (With <code>--load</code>, <code>checkpoint.load()</code> does this instead.)</li>
+</ol>
+
+<h4><code>python main.py --headless</code></h4>
+<ol class="trace" start="3">
+  <li><code>headless.train()</code> starts a pool of worker processes.</li>
+  <li>It sends every genome to <code>play_game()</code> in <code>snake_ai.py</code>, one game per snake, in parallel.</li>
+  <li><code>play_game</code> builds a <code>SnakeAI</code>: a <code>NeuralNetwork</code> (<code>network.py</code>),
+      a <code>Board</code> and a <code>Snake</code> (SnakeGame), and calls <code>step()</code> until the game ends.</li>
+  <li>Each <code>SnakeAI.step()</code> calls the game's <code>Snake.moveTo()</code> (<code>snake.py</code>),
+      then <code>think()</code> → <code>look()</code> → <code>NeuralNetwork.forward()</code> to choose the next move.</li>
+  <li>When the game is over, <code>SnakeAI.fitness()</code> → <code>fitness_function()</code>.</li>
+  <li>Back in <code>train()</code> the results are stored on each <code>Individual</code>, then
+      <code>GeneticAlgorithm.next_generation()</code> breeds the next population.</li>
+  <li>Every 10 generations, and on Ctrl+C: <code>checkpoint.save()</code> writes <code>saves/…npz</code>.</li>
+</ol>
+
+<h4><code>python main.py</code> (dashboard)</h4>
+<ol class="trace" start="3">
+  <li><code>Dashboard(ga)</code> in <code>main_window.py</code> builds the window (<code>build_window()</code>)
+      and starts a timer that fires every 16 ms.</li>
+  <li><code>start_snake()</code> builds a <code>SnakeAI</code> for snake number <code>index</code> and hands it to
+      <code>BoardView.show_game()</code> and <code>NetworkView.show_brain()</code>.</li>
+  <li><code>on_timer()</code> → <code>one_move()</code> → <code>game.step()</code>: the same
+      <code>snake_ai.py</code> code as headless step 6, one move at a time.</li>
+  <li>When the game ends, <code>snake_finished()</code> stores the fitness and moves to the next snake. After the
+      last one it calls <code>ga.next_generation()</code> and <code>chart.set_history()</code>.</li>
+  <li><code>refresh()</code> updates the labels and asks the views to repaint; their <code>paintEvent()</code>s read the
+      game and the brain.</li>
+  <li><b>Apply</b> in the settings form: <code>ConfigPanel</code> emits its <code>applied</code> signal with a new <code>Config</code> →
+      <code>Dashboard.restart()</code> → <code>settings.json</code>.
+      <b>Save / Load…</b>: <code>Dashboard.save()</code> / <code>load_dialog()</code> → <code>checkpoint.save / load</code>.</li>
+</ol>
+
+<!-- ================================================================== -->
+<h2 id="files"><span class="num">4</span>File by file</h2>
+
+<p>Each file starts with what it is for and who uses it, then a table of what is inside.
+The short excerpts are copied from the source; search for the function name to find the current version.</p>
+
+<!-- ---------------------------------------------------------------- -->
+<h3 id="f-main">main.py</h3>
+<p class="meta"><b>Uses:</b> config, genetic, checkpoint, headless / Dashboard · <b>Used by:</b> you</p>
+<p>The only file you run. It reads the command line, gets the settings, makes (or loads) the <code>GeneticAlgorithm</code>
+object <code>ga</code>, and hands it to one of the two runners. <code>ga</code> is the one object everything else works on:
+it holds the settings (<code>ga.cfg</code>), the population, the generation number and the history.</p>
+<span class="file">main.py · main()</span>
+<pre><code>settings = Config.load(args.config) if args.config else Config.load_last()
+if args.load:
+    ga = checkpoint.load(args.load, settings)     <span class="c"># snakes + brain from the file, the rest from settings</span>
+else:
+    ga = GeneticAlgorithm(settings)
+
+if args.headless:
+    from GeneticAI import headless
+    headless.train(ga, args.generations, args.workers, args.save)
+else:
+    from PyQt5.QtWidgets import QApplication
+    from Dashboard.main_window import Dashboard</code></pre>
+
+<!-- ---------------------------------------------------------------- -->
+<h2 id="d-geneticai" style="font-size:1.25rem"><code>GeneticAI/</code>: the learning</h2>
+<p>Six files, in the order they build on each other: <code>config</code> and <code>network</code> depend on nothing;
+<code>snake_ai</code> and <code>genetic</code> each use <code>network</code>; <code>checkpoint</code> and <code>headless</code> sit on top.</p>
+
+<h3 id="f-config">config.py</h3>
+<p class="meta"><b>Uses:</b> nothing · <b>Used by:</b> main, checkpoint, main_window, config_panel</p>
+<p>All settings live in one dataclass, <code>Config</code>, with a default for each. Every other file reads its settings from
+a <code>Config</code> (usually <code>ga.cfg</code>), so to find what a setting does, search for <code>cfg.&lt;name&gt;</code>.</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>SETTINGS_FILE</code></td><td>path of <code>settings.json</code> in the project root</td></tr>
+<tr><td><code>BRAIN_SETTINGS</code></td><td>the 6 settings that decide the brain's shape (layers, activations, inputs, vision)</td></tr>
+<tr><td><code>Config</code> fields</td><td>grouped as Game, Neural network, Genetic algorithm</td></tr>
+<tr><td><code>num_inputs</code></td><td>14 for simple inputs; rays × 3 + 8 for vision (32 with 8 rays)</td></tr>
+<tr><td><code>layer_sizes</code></td><td><code>[inputs] + hidden_layers + [3]</code>, default <code>[32, 20, 12, 3]</code></td></tr>
+<tr><td><code>population_size</code></td><td>100 + 400 with "plus" selection, 400 with "comma"</td></tr>
+<tr><td><code>load</code>, <code>load_last</code>, <code>save</code></td><td>read / write JSON</td></tr>
+<tr><td><code>same_brain_as</code></td><td>can the current snakes be kept after Apply?</td></tr>
+<tr><td><code>with_brain_of</code></td><td>your settings, but the brain settings of a checkpoint</td></tr>
+</table></div>
+<p>Why brain settings are special: a genome only fits the brain shape it was made for (see <a href="#f-network">network.py</a>),
+so a loaded checkpoint always brings its own.</p>
+
+<h3 id="f-network">network.py</h3>
+<p class="meta"><b>Uses:</b> numpy · <b>Used by:</b> snake_ai (the brain), genetic (genome size, random genomes), config_panel (gene count)</p>
+<p>The brain. There is no training code here: a <code>NeuralNetwork</code> is built from a genome, a flat list of numbers,
+and only ever runs <code>forward()</code>.</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>relu</code> … <code>linear</code>, <code>ACTIVATIONS</code></td><td>the activation functions, looked up by name from the settings</td></tr>
+<tr><td><code>genome_size</code></td><td>how many numbers a genome needs: 951 for <code>[32, 20, 12, 3]</code></td></tr>
+<tr><td><code>random_genome</code></td><td>a new genome, every number uniform in [−1, 1]</td></tr>
+<tr><td><code>NeuralNetwork.__init__</code></td><td>cuts the genome into W1, b1, W2, b2, …</td></tr>
+<tr><td><code>NeuralNetwork.forward</code></td><td>inputs → 3 outputs; keeps every layer's values in <code>activations</code> for <code>nn_view</code></td></tr>
+</table></div>
+<span class="file">GeneticAI/network.py · NeuralNetwork.__init__()</span>
+<pre><code>pos = 0
+for n_in, n_out in zip(layer_sizes[:-1], layer_sizes[1:]):
+    W = genome[pos: pos + n_in * n_out].reshape(n_out, n_in)    <span class="c"># W[to, from]</span>
+    pos += n_in * n_out
+    b = genome[pos: pos + n_out]
+    pos += n_out</code></pre>
+
+<h3 id="f-snake_ai">snake_ai.py</h3>
+<p class="meta"><b>Uses:</b> network, SnakeGame (<code>Snake</code>, <code>Direction</code>, <code>Point</code>, <code>Board</code>) · <b>Used by:</b> headless, main_window, board_view</p>
+<p>One snake playing one game. <code>SnakeAI</code> owns a brain, a <code>Board</code> and a <code>Snake</code> from the original game.
+The class is laid out in the order things happen, with comment banners: <em>1. look</em>, <em>2. think</em>, <em>3. move</em>,
+then the loop check and fitness.</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>sys.path.insert</code></td><td>makes <code>SnakeGame/</code> importable</td></tr>
+<tr><td><code>MOVES</code>, <code>MOVE_NAMES</code></td><td>output neuron <em>i</em> means the game's action <code>MOVES[i]</code>: forward, right, left</td></tr>
+<tr><td><code>RAYS_8</code>, <code>RAYS_4</code>, <code>CLOCKWISE</code></td><td>look directions, and the clockwise direction list used for "right of the head"</td></tr>
+<tr><td><code>input_labels</code></td><td>names of the input neurons, shown in <code>nn_view</code></td></tr>
+<tr><td><code>fitness_function</code></td><td>turns one game into one number (table below)</td></tr>
+<tr><td><code>SnakeAI.__init__</code></td><td>new brain, new board and snake, first apple, first <code>think()</code></td></tr>
+<tr><td><code>look</code> / <code>look_vision</code></td><td>8 rays × (wall, apple, own body) + head and tail direction</td></tr>
+<tr><td><code>cells_around_head</code>, <code>is_wall</code>, <code>is_body</code>, <code>look_simple</code></td><td>the 14 yes/no inputs</td></tr>
+<tr><td><code>think</code></td><td><code>look()</code> then <code>brain.forward()</code></td></tr>
+<tr><td><code>step</code></td><td>one move: argmax → <code>Snake.moveTo()</code> → new apple / game over / loop check → <code>think()</code></td></tr>
+<tr><td><code>is_looping</code>, <code>end_as_loop</code></td><td>stop a snake that is repeating itself, scored as if it starved</td></tr>
+<tr><td><code>fitness</code></td><td>calls <code>fitness_function</code>; circling moves count as wasted</td></tr>
+<tr><td><code>play_game</code></td><td>a whole game without drawing; what <code>headless</code> runs in each worker</td></tr>
+</table></div>
+<span class="file">GeneticAI/snake_ai.py · SnakeAI.step()</span>
+<pre><code>def step(self):
+    """Make one move: the output neuron with the highest value wins."""
+    if self.done:
+        return
+    self.move = int(np.argmax(self.outputs))
+    self.status = self.snake.moveTo(MOVES[self.move])
+    self.steps += 1
+    <span class="c">...</span>
+    if self.is_looping():
+        self.end_as_loop()
+        return
+    self.think()                                          <span class="c"># decide the next move</span></code></pre>
+<p><code>think()</code> runs at the <em>end</em> of a step (and once in <code>__init__</code>), so the dashboard can already show the
+next move and the lit-up brain before it happens.</p>
+
+<h4>The two kinds of input (<code>cfg.input_type</code>)</h4>
+<div class="table-wrap"><table>
+<tr><th>Type</th><th>Inputs</th><th>Code</th></tr>
+<tr><td>vision</td><td>per ray: 1/distance to the wall, apple on the ray?, own body on the ray? (8 × 3 = 24), plus head direction (4) and tail direction (4) = 32</td><td><code>look_vision</code></td></tr>
+<tr><td>simple</td><td>wall forward/right/left, moving R/D/L/U, body forward/right/left, apple left/right/up/down = 14</td><td><code>look_simple</code></td></tr>
+</table></div>
+
+<h4>Fitness</h4>
+<span class="file">GeneticAI/snake_ai.py · fitness_function()</span>
+<pre><code>useful_steps = steps - wasted_steps
+return useful_steps + (2 ** apples + 500 * apples ** 2.1) - (apples ** 1.2 * (0.25 * steps) ** 1.3)</code></pre>
+<div class="table-wrap"><table>
+<tr><th>Game</th><th class="r">steps</th><th class="r">apples</th><th class="r">fitness</th></tr>
+<tr><td>crashes after 150 moves</td><td class="r">150</td><td class="r">0</td><td class="r">151</td></tr>
+<tr><td>150 useful moves, then circles 250 and starves</td><td class="r">400</td><td class="r">0</td><td class="r">151</td></tr>
+<tr><td>3 apples</td><td class="r">300</td><td class="r">3</td><td class="r">4,307</td></tr>
+<tr><td>10 apples, quickly</td><td class="r">1,000</td><td class="r">10</td><td class="r">44,206</td></tr>
+<tr><td>10 apples, slowly</td><td class="r">2,000</td><td class="r">10</td><td class="r">14,842</td></tr>
+<tr><td>30 apples</td><td class="r">5,000</td><td class="r">30</td><td class="r">1.07 × 10<sup>9</sup></td></tr>
+</table></div>
+
+<h3 id="f-genetic">genetic.py</h3>
+<p class="meta"><b>Uses:</b> network (<code>random_genome</code>, <code>genome_size</code>) · <b>Used by:</b> main, checkpoint, main_window</p>
+<p>The population and the generation step. It never plays a game: it expects every <code>Individual</code> to already have a
+<code>fitness</code> when <code>next_generation()</code> is called. The top of the file is plain functions on genomes (crossover,
+mutation); the bottom is the <code>GeneticAlgorithm</code> class that uses them.</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>Individual</code></td><td>one snake: <code>genome</code>, <code>fitness</code>, <code>score</code>, <code>steps</code>, <code>age</code>, <code>born_by</code></td></tr>
+<tr><td><code>sbx_crossover</code></td><td>each child gene is a random blend near the parents' genes</td></tr>
+<tr><td><code>single_point_</code>, <code>two_point_</code>, <code>uniform_crossover</code></td><td>cut-and-swap crossovers</td></tr>
+<tr><td><code>gaussian_mutation</code>, <code>uniform_mutation</code></td><td>nudge, or replace, about 5% of the genes</td></tr>
+<tr><td><code>GeneticAlgorithm.__init__</code></td><td>500 random individuals, empty history</td></tr>
+<tr><td><code>mutation_rate</code></td><td>fixed, or shrinking with the generation ("decaying")</td></tr>
+<tr><td><code>record_results</code></td><td>step 2: history for the chart, <code>best_ever</code></td></tr>
+<tr><td><code>select_survivors</code></td><td>step 3: the 100 fittest (respecting <code>lifespan</code>)</td></tr>
+<tr><td><code>pick_parent</code></td><td>step 4: tournament (default) or roulette wheel</td></tr>
+<tr><td><code>crossover</code></td><td>step 5: clone, SBX, or the chosen point crossover</td></tr>
+<tr><td><code>mutate</code></td><td>step 6: gaussian or uniform</td></tr>
+<tr><td><code>next_generation</code></td><td>runs steps 2–6 and builds the next population. <b>Read this first.</b></td></tr>
+</table></div>
+<span class="file">GeneticAI/genetic.py · GeneticAlgorithm.next_generation()</span>
+<pre><code>def next_generation(self):
+    """Call this after every snake of the population has played and has a fitness."""
+    self.record_results()
+    survivors = self.select_survivors()
+
+    children = []
+    while len(children) &lt; self.cfg.num_offspring:
+        mom = self.pick_parent(survivors)
+        dad = self.pick_parent(survivors)
+        genome1, genome2, method = self.crossover(mom, dad)
+        for genome in (genome1, genome2):
+            self.mutate(genome)
+            children.append(Individual(genome, born_by=method))</code></pre>
+<p>With "plus" selection (default) the next population is <code>survivors + children</code> (100 + 400); with "comma" it is only the children.</p>
+
+<h3 id="f-headless">headless.py</h3>
+<p class="meta"><b>Uses:</b> checkpoint, snake_ai · <b>Used by:</b> main (with <code>--headless</code>)</p>
+<p>Runner 1, and the only parallel code in the project. It is also the shortest complete training loop, so it is the best
+place to see the whole program in one screen.</p>
+<span class="file">GeneticAI/headless.py · train()</span>
+<pre><code>while generations == 0 or done &lt; generations:
+    <span class="c">...</span>
+    <span class="c"># Play every snake's game, in parallel. results[i] belongs to population[i].</span>
+    jobs = [(ga.cfg, ind.genome) for ind in ga.population]
+    results = pool.starmap(play_game, jobs)
+    for ind, (fitness, score, steps) in zip(ga.population, results):
+        ind.fitness, ind.score, ind.steps = fitness, score, steps
+
+    ga.next_generation()          <span class="c"># same genetic algorithm as the dashboard</span></code></pre>
+<p>Only the settings and a genome go to each worker, and only three numbers come back. Workers ignore Ctrl+C
+(<code>ignore_ctrl_c</code>); the main process catches it, saves, and stops.</p>
+
+<h3 id="f-checkpoint">checkpoint.py</h3>
+<p class="meta"><b>Uses:</b> config, genetic · <b>Used by:</b> main, headless, main_window</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>with_input_type</code></td><td><code>saves/checkpoint.npz</code> → <code>saves/checkpoint_vision.npz</code> (or <code>_simple</code>)</td></tr>
+<tr><td><code>save</code></td><td>one <code>.npz</code>: settings as JSON, generation, all genomes and ages, history, best-ever genome</td></tr>
+<tr><td><code>load</code></td><td>rebuilds a <code>GeneticAlgorithm</code>; brain settings from the file, the rest from yours</td></tr>
+</table></div>
+
+<!-- ---------------------------------------------------------------- -->
+<h2 id="d-dashboard" style="font-size:1.25rem"><code>Dashboard/</code>: the window</h2>
+<p>One runner (<code>main_window.py</code>) and four widgets. The widgets only draw or edit settings; they never change the
+game or the population. See <a href="dashboard.html">dashboard.html</a> for what each part of the window shows.</p>
+
+<h3 id="f-main_window">main_window.py</h3>
+<p class="meta"><b>Uses:</b> genetic, config, snake_ai, checkpoint, the four views · <b>Used by:</b> main</p>
+<p>Runner 2. It does the same job as <code>headless.train()</code>, but a window cannot sit in a <code>while</code> loop, so the
+loop is cut into timer ticks. The file is split by comment banners: <em>The training loop</em>, <em>Keys</em>, <em>Screen</em>,
+then the buttons.</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>Dashboard.__init__</code></td><td>build the window, start a 16 ms timer, start the first snake</td></tr>
+<tr><td><code>start_snake</code></td><td>new <code>SnakeAI</code> for snake number <code>index</code>, shown on the board and in the brain view</td></tr>
+<tr><td><code>one_move</code></td><td><code>game.step()</code>, and <code>snake_finished()</code> when it is over</td></tr>
+<tr><td><code>snake_finished</code></td><td>store fitness; next snake; after the last one, <code>ga.next_generation()</code></td></tr>
+<tr><td><code>on_timer</code></td><td>makes as many moves as the speed setting asks for, then <code>refresh()</code></td></tr>
+<tr><td><code>eventFilter</code>, <code>pause_or_step</code>, <code>resume</code></td><td>Space / R / Q keys</td></tr>
+<tr><td><code>refresh</code></td><td>update the labels and repaint the views</td></tr>
+<tr><td><code>build_window</code></td><td>creates the widgets and connects the buttons</td></tr>
+<tr><td><code>restart</code></td><td>Apply: keep the snakes or start a new population; write <code>settings.json</code></td></tr>
+<tr><td><code>save</code>, <code>load_dialog</code></td><td>Save / Load… buttons → <code>checkpoint</code></td></tr>
+</table></div>
+<span class="file">Dashboard/main_window.py · Dashboard.snake_finished()</span>
+<pre><code>def snake_finished(self):
+    """The snake died: store how well it did, then go on to the next snake."""
+    snake = self.ga.population[self.index]
+    snake.fitness = self.game.fitness()
+    <span class="c">...</span>
+    self.index += 1
+    if self.index == len(self.ga.population):    <span class="c"># every snake has played:</span>
+        self.ga.next_generation()                <span class="c"># selection, crossover, mutation</span>
+        self.index = 0
+        self.chart.set_history(self.ga.history)
+    self.start_snake()</code></pre>
+<p>Compare with the loop in <code>headless.train()</code>: the same three things (play, store fitness, <code>next_generation</code>), spread over callbacks.</p>
+
+<h3 id="f-board_view">board_view.py</h3>
+<p class="meta"><b>Uses:</b> <code>boards.GameBoard</code> · <b>Used by:</b> main_window</p>
+<p><code>BoardView</code> subclasses the original <code>GameBoard</code>. <code>show_game()</code> points it at the current
+game's snake and apple; <code>paintEvent()</code> lets the original code draw the board, then draws the vision rays from
+<code>game.ray_hits</code>, or, with simple inputs, the three cells around the head.</p>
+
+<h3 id="f-nn_view">nn_view.py</h3>
+<p class="meta"><b>Uses:</b> PyQt5 only · <b>Used by:</b> main_window</p>
+<p><code>NetworkView</code> draws a brain. <code>show_brain()</code> receives the <code>NeuralNetwork</code>;
+<code>neuron_positions()</code> lays out one column per layer; <code>paintEvent()</code> draws wires from
+<code>brain.weights</code> (blue positive, red negative) and neurons from <code>brain.activations</code>.</p>
+
+<h3 id="f-chart_view">chart_view.py</h3>
+<p class="meta"><b>Uses:</b> PyQt5 only · <b>Used by:</b> main_window</p>
+<p><code>ChartView.set_history()</code> takes <code>ga.history</code>; <code>paintEvent()</code> draws best and average score per generation.</p>
+
+<h3 id="f-config_panel">config_panel.py</h3>
+<p class="meta"><b>Uses:</b> config, network · <b>Used by:</b> main_window</p>
+<p>The settings form. It is the longest view, but mostly form layout in <code>ConfigPanel.__init__</code>.
+The parts worth knowing:</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>SpinBox</code>, <code>DoubleSpinBox</code>, <code>ComboBox</code></td><td>fields that ignore the mouse wheel until you click them</td></tr>
+<tr><td><code>applied</code></td><td>the signal sent on Apply, carrying a new <code>Config</code>; <code>main_window</code> connects it to <code>restart</code></td></tr>
+<tr><td><code>_refresh_labels</code></td><td>input count, gene count, greys out settings that do not apply</td></tr>
+<tr><td><code>config</code></td><td>form → <code>Config</code></td></tr>
+<tr><td><code>load_config</code></td><td><code>Config</code> → form</td></tr>
+</table></div>
+
+<!-- ---------------------------------------------------------------- -->
+<h2 id="d-snakegame" style="font-size:1.25rem"><code>SnakeGame/</code>: the original game</h2>
+<p>A git submodule (<a href="https://github.com/yhur/SnakeGame">yhur/SnakeGame</a>), used without changes. Only two of its
+names matter to the AI: <code>Snake.moveTo()</code> and <code>Board.generate_apple()</code>.</p>
+
+<h3 id="f-snake">snake.py</h3>
+<p class="meta"><b>Used by:</b> snake_ai</p>
+<div class="table-wrap"><table>
+<tr><th>Name</th><th>What it does</th></tr>
+<tr><td><code>Point</code></td><td><code>(x, y)</code> named tuple</td></tr>
+<tr><td><code>Direction</code></td><td>RIGHT, DOWN, LEFT, UP, <b>in clockwise order</b>: turning right = next in the list</td></tr>
+<tr><td><code>Snake.action_f/_r/_l</code></td><td>moves are relative to the head: <code>[1,0,0]</code> forward, <code>[0,1,0]</code> right, <code>[0,0,1]</code> left. Hence the brain's 3 outputs.</td></tr>
+<tr><td><code>reset</code></td><td>length 3, in the middle, facing a random direction</td></tr>
+<tr><td><code>moveTo</code></td><td>moves one cell and returns <code>'wall'</code>, <code>'body'</code>, <code>'starved'</code>, <code>'apple'</code> or <code>'ok'</code></td></tr>
+</table></div>
+<span class="file">SnakeGame/snake.py · Snake.moveTo()</span>
+<pre><code>if head.x >= self.grid_width or head.x &lt; 0 or head.y >= self.grid_height or head.y &lt; 0:
+    return 'wall'
+elif head in self.body[1:]:
+    return 'body'
+elif self.moves > 100 * len(self.body) + 200:
+    return 'starved'</code></pre>
+
+<h3 id="f-boards">boards.py</h3>
+<p class="meta"><b>Used by:</b> snake_ai (<code>Board</code>), board_view (<code>GameBoard</code>)</p>
+<p><code>Board</code> knows the grid size and places apples on a random free cell (<code>generate_apple</code>).
+<code>GameBoard</code> is a Qt widget that draws the board, the snake and the apple.</p>
+
+<h3 id="f-mygame">mygame.py</h3>
+<p>The original game for a human player (arrow keys). SnakeGenetics does not use it, but running it is the quickest way to see what
+<code>moveTo()</code> does: <code>python SnakeGame/mygame.py</code>.</p>
+
+<!-- ---------------------------------------------------------------- -->
+<h2 id="d-data" style="font-size:1.25rem">Files the program writes, and docs</h2>
+<div class="table-wrap"><table>
+<tr><th>Path</th><th>Written by</th><th>Read by</th></tr>
+<tr><td><code>settings.json</code></td><td>Apply and Load… in the dashboard (<code>Dashboard.restart</code>, <code>load_dialog</code>)</td><td><code>Config.load_last()</code> when either mode starts</td></tr>
+<tr><td><code>saves/*_vision.npz</code>, <code>*_simple.npz</code></td><td><code>checkpoint.save</code>: headless every 10 generations and on Ctrl+C; the dashboard's Save button</td><td><code>checkpoint.load</code>: <code>--load</code> or Load…</td></tr>
+<tr><td><code>docs/dashboard.html</code></td><td colspan="2">what every part of the window shows</td></tr>
+<tr><td><code>docs/code.html</code></td><td colspan="2">this page</td></tr>
+</table></div>
+<p>Both <code>settings.json</code> and <code>saves/</code> are in <code>.gitignore</code>.</p>
+
+<!-- ================================================================== -->
+<h2 id="where"><span class="num">5</span>Where to change what</h2>
+<div class="table-wrap"><table>
+<tr><th>If you want to change…</th><th>Look in</th></tr>
+<tr><td>a default setting</td><td><code>GeneticAI/config.py</code>, the <code>Config</code> fields</td></tr>
+<tr><td>what the snake sees</td><td><code>snake_ai.py</code> <code>look_vision</code> / <code>look_simple</code>, and <code>config.num_inputs</code> and <code>input_labels</code> to match</td></tr>
+<tr><td>how a game is scored</td><td><code>snake_ai.py</code> <code>fitness_function</code></td></tr>
+<tr><td>when a game ends</td><td><code>SnakeGame/snake.py</code> <code>moveTo</code> (but it is the original game), and <code>snake_ai.py</code> <code>step</code> / <code>is_looping</code></td></tr>
+<tr><td>selection, crossover, mutation</td><td><code>genetic.py</code>: the free functions at the top, or the <code>GeneticAlgorithm</code> methods</td></tr>
+<tr><td>a new activation function</td><td><code>network.py</code> <code>ACTIVATIONS</code>, plus the list in <code>config_panel.py</code></td></tr>
+<tr><td>a new setting in the form</td><td><code>config.py</code> field + <code>config_panel.py</code> (<code>__init__</code>, <code>config</code>, <code>load_config</code>)</td></tr>
+<tr><td>what is saved in a checkpoint</td><td><code>checkpoint.py</code> <code>save</code> and <code>load</code></td></tr>
+<tr><td>how something is drawn</td><td>the <code>paintEvent</code> of the matching <code>Dashboard/*_view.py</code></td></tr>
+<tr><td>the headless console output</td><td><code>headless.py</code> <code>train()</code>, the <code>print</code> calls</td></tr>
+</table></div>
+
+<!-- ================================================================== -->
+<h2 id="notes"><span class="num">6</span>Things worth knowing</h2>
+<ul>
+  <li><b>Headless still needs PyQt5 installed.</b> <code>GeneticAI/</code> never draws, but <code>snake_ai.py</code> imports
+      <code>SnakeGame/boards.py</code>, which imports PyQt5 at the top. No window is opened, so no screen is needed.</li>
+  <li><b>A genome only fits one brain shape.</b> <code>network.py</code> cuts it by <code>layer_sizes</code>, so changing layers,
+      activations or inputs means a new random population (<code>main_window.restart</code>), and checkpoints keep their own brain settings.</li>
+  <li><b>One game per snake is a noisy test.</b> Every game starts in a random direction with random apples, so the same genome can
+      score 1 or 300. "Best ever" is the luckiest game; the average score shows real progress.</li>
+  <li><b>Vision snakes often cannot see the apple.</b> It only shows up when it is exactly on one of the 8 rays. Combined with a
+      deterministic brain, that is why many long games end in a loop (<code>is_looping</code>).</li>
+  <li><b>Late in training, fitness is just "apples".</b> Beyond about 40 apples, <code>2 ** apples</code> dwarfs the other terms of
+      <code>fitness_function</code>. Tournament selection only compares order, so it is unaffected; roulette is.</li>
+  <li><b>Two headless runs share one file</b> unless you pass a different <code>--save</code>, because both write
+      <code>saves/checkpoint_&lt;inputs&gt;.npz</code>.</li>
+</ul>
+
+<!-- ================================================================== -->
+<h2 id="order"><span class="num">7</span>Suggested reading order</h2>
+<ol>
+  <li><code>SnakeGame/snake.py</code>: <code>Direction</code> and <code>moveTo()</code>. Everything builds on these.</li>
+  <li><code>GeneticAI/network.py</code>: short. Genome → weights → <code>forward()</code>.</li>
+  <li><code>GeneticAI/snake_ai.py</code>: top to bottom; it is in the order things happen.</li>
+  <li><code>GeneticAI/genetic.py</code>: <code>next_generation()</code> first, then the methods it calls, in order.</li>
+  <li><code>GeneticAI/headless.py</code>: now the whole loop fits on one screen.</li>
+  <li><code>GeneticAI/config.py</code>, <code>checkpoint.py</code>, <code>main.py</code>: settings, files, start-up.</li>
+  <li><code>Dashboard/main_window.py</code>: the same loop, driven by a timer. The view files only if you are curious about the drawing.</li>
+</ol>
+
+</main>
+</body>
+</html>
