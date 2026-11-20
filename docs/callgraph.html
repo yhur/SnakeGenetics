@@ -427,7 +427,7 @@ headless's <code>play_game</code>, one move per call.</p>
       for (var n = at + 1; n < ls.length; n++) { if (ls[n].indexOf(text) >= 0) { at = n; return; } }
       at = -2;
     });
-    return { file: file, line: at + 1 };
+    return { file: file, line: at < 0 ? 0 : at + 1 };   // 0 = not found
   }
 
   // the body of the def/class starting at `line` (1-based): everything indented deeper than it
